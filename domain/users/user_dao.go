@@ -2,6 +2,7 @@ package users
 
 import (
 	"fmt"
+	"github.com/narinjtp/bookstore_users-api/utils/date_utils"
 	"github.com/narinjtp/bookstore_users-api/utils/errors"
 )
 
@@ -25,10 +26,11 @@ func (user *User)Save() *errors.RestErr{
 	current := usersDB[user.Id]
 	if current != nil {
 		if current.Email == user.Email{
-			return errors.NewBadRequestError(fmt.Sprintf(("email %d already registered"),user.Email))
+			return errors.NewBadRequestError(fmt.Sprintf(("email %s already registered"),user.Email))
 		}
 		return errors.NewBadRequestError(fmt.Sprintf(("user %d already exists"),user.Id))
 	}
+	user.DateCreated = date_utils.GetNowString()
 	usersDB[user.Id] = user
 	return nil
 }
