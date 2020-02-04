@@ -13,7 +13,15 @@ import (
 var(
 	counter int
 )
-func GetUser(c *gin.Context){
+func getUserId(userIdParam string)(int64, *errors.RestErr){
+	userId, userErr := strconv.ParseInt(c.Param("user_id"),10,64)
+	if userErr != nil{
+		err := errors.NewBadRequestError("user id should be a number")
+		c.JSON(err.Status,err)
+		return
+	}
+}
+func Get(c *gin.Context){
 	userId, userErr := strconv.ParseInt(c.Param("user_id"),10,64)
 	if userErr != nil{
 		err := errors.NewBadRequestError("user id should be a number")
@@ -29,7 +37,7 @@ func GetUser(c *gin.Context){
 	c.JSON(http.StatusOK, user)
 }
 
-func CreateUser(c *gin.Context){
+func Create(c *gin.Context){
 	var user users.User
 	//fmt.Println(user)
 	//bytes, err := ioutil.ReadAll(c.Request.Body)
@@ -60,7 +68,7 @@ func CreateUser(c *gin.Context){
 	c.JSON(http.StatusOK, result)
 }
 
-func UpdateUser(c *gin.Context){
+func Update(c *gin.Context){
 	userId, userErr := strconv.ParseInt(c.Param("user_id"),10,64)
 	if userErr != nil{
 		err := errors.NewBadRequestError("user id should be a number")
@@ -84,5 +92,14 @@ func UpdateUser(c *gin.Context){
 		return
 	}
 	c.JSON(http.StatusOK, result)
+}
+
+func Delete(c *gin.Context){
+	userId, userErr := strconv.ParseInt(c.Param("user_id"),10,64)
+	if userErr != nil{
+		err := errors.NewBadRequestError("user id should be a number")
+		c.JSON(err.Status,err)
+		return
+	}
 }
 
