@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/narinjtp/bookstore_users-api/domain/users"
+	"github.com/narinjtp/bookstore_users-api/logger"
 	"github.com/narinjtp/bookstore_users-api/services"
 	"github.com/narinjtp/bookstore_users-api/utils/errors"
 	"net/http"
@@ -27,7 +28,7 @@ func Get(c *gin.Context){
 		return
 	}
 
-	user, getErr := services.GetUser(userId)
+	user, getErr := services.UsersService.GetUser(userId)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 		return
@@ -36,26 +37,22 @@ func Get(c *gin.Context){
 }
 
 func Create(c *gin.Context){
+	//buf := make([]byte, 1024)
+	//num, _ := c.Request.Body.Read(buf)
+	//reqBody := string(buf[0:num])
+	//logger.Info("request :" + reqBody)
+
 	var user users.User
-	//fmt.Println(user)
-	//bytes, err := ioutil.ReadAll(c.Request.Body)
-	//if err != nil{
-	//	//TODO: Handle error
-	//	return
-	//}
-	//if err := json.Unmarshal(bytes, &user); err != nil{
-	//	fmt.Println(err.Error())
-	//	//TODO: Handle json error
-	//	return
-	//}
+
 	if err := c.ShouldBindJSON(&user); err != nil{
-		fmt.Println(err.Error())
+		logger.Error("invalid json body", err)
 			restErr := errors.NewBadRequestError("invalid json body")
 		//TODO: Handle json error
 		c.JSON(http.StatusOK, restErr)
 		return
 	}
-	result, saveErr := services.CreateUser(user)
+
+	result, saveErr := services.UsersService.CreateUser(user)
 	if saveErr != nil {
 		c.JSON(http.StatusOK, saveErr)
 		return
@@ -84,7 +81,7 @@ func Update(c *gin.Context){
 	}
 	user.Id = userId
 	isPartial := c.Request.Method == http.MethodPatch
-	result, err := services.UpdateUser(isPartial, user)
+	result, err := services.UsersService.UpdateUser(isPartial, user)
 	if err != nil {
 		c.JSON(err.Status, err)
 		return
@@ -98,7 +95,7 @@ func Delete(c *gin.Context){
 		c.JSON(idErr.Status,idErr)
 		return
 	}
-	if err := services.DeleteUser(userId); err != nil{
+	if err := services.UsersService.DeleteUser(userId); err != nil{
 		c.JSON(err.Status,err)
 		return
 	}
@@ -107,7 +104,7 @@ func Delete(c *gin.Context){
 
 func Search(c *gin.Context) {
 	status := c.Query("status")
-	users, err := services.Search(status)
+	users, err := services.UsersService.SearchUser(status)
 	if err != nil {
 		c.JSON(err.Status,err)
 		return
